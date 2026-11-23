@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="員工打卡">
+<meta name="application-name" content="員工打卡">
+<meta name="theme-color" content="#1f4e79">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>五味鼎 員工打卡</title>
+<meta name="wwd-shell-version" content="clock shell k1 · 2026-11-23">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #1f4e79; overscroll-behavior: none; }
+  /* Full-viewport iframe. On iPhone (black-translucent status bar) the page runs under the status bar / notch,
+     so the frame starts below the top safe area and respects left/right insets in landscape.
+     Outside iOS standalone env() = 0, so the frame is exactly inset 0, 100vw x 100dvh. */
+  #app {
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    left: env(safe-area-inset-left, 0px);
+    right: env(safe-area-inset-right, 0px);
+    bottom: 0;
+    width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    height: calc(100vh - env(safe-area-inset-top, 0px));
+    height: calc(100dvh - env(safe-area-inset-top, 0px));
+    border: 0; margin: 0; padding: 0; display: block; background: #fff;
+  }
+  #msg { display: none; position: fixed; inset: 0; color: #fff; font: 16px/1.5 -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+         padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 24px; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<iframe id="app" title="五味鼎 員工打卡" allow="camera *; geolocation *; publickey-credentials-get *; publickey-credentials-create *; clipboard-write *; fullscreen *" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+<div id="msg" role="alert"></div>
+<script>
+  /* 員工打卡 TEST exec 網址（部署後填入）。 */
+  var EXEC_URL = 'https://script.google.com/macros/s/AKfycbywU5USvChBbzVKJ2ati_c7a6ZDK1mSWZDYJUCxRIZ-rs3458rol_J8MwdV73kAaIiw/exec';
+
+  (function () {
+    var frame = document.getElementById('app');
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(EXEC_URL) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(EXEC_URL)) {
+      frame.style.display = 'none';
+      var m = document.getElementById('msg');
+      m.textContent = '尚未設定 EXEC_URL（請在 index.html 填入 員工打卡的 exec 網址）。';
+      m.style.display = 'block';
+      return;
+    }
+    frame.src = EXEC_URL + (location.search || '');
+  })();
+</script>
+</body>
+</html>
