@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="apple-touch-icon" href="../apple-touch-icon-180.png">
+<link rel="icon" href="../icon-192.png">
+<title>五味鼎 員工打卡</title>
+<style>
+  :root { --brand:#1f4e79; --bg:#f4f6f9; --line:#d9dee5; --ok:#1b7a3a; --err:#b71c1c; }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html,body { margin:0; background:var(--bg); color:#1d2733; font:16px/1.45 -apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif; -webkit-text-size-adjust:100%; }
+  header { position:sticky; top:0; z-index:10; background:var(--brand); color:#fff; padding:12px 16px; padding-top:calc(12px + env(safe-area-inset-top,0px)); }
+  .hdr { display:flex; align-items:center; justify-content:space-between; gap:8px; max-width:560px; margin:0 auto; }
+  .hdr h1 { font-size:18px; margin:0; }
+  .hdr .store { font-size:13px; opacity:.92; margin-top:2px; }
+  .langs { display:flex; gap:4px; flex-shrink:0; }
+  .langs button { background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.4); border-radius:8px; padding:6px 8px; font-size:13px; font-weight:600; }
+  .langs button.on { background:#fff; color:var(--brand); border-color:#fff; }
+  main { max-width:560px; margin:0 auto; padding:14px 14px 70px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; }
+  .card h2 { font-size:17px; margin:0 0 8px; color:var(--brand); }
+  label.f { display:block; font-size:14px; color:#4a5868; margin:10px 0 4px; font-weight:600; }
+  input[type=text],select { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; background:#fff; font:inherit; font-size:16px; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .consent { background:#fff8e6; border:1px solid #f0d58a; border-radius:10px; padding:12px; font-size:14px; line-height:1.55; color:#4a3b10; }
+  .consent p { margin:0 0 8px; }
+  .consent label { display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer; }
+  .consent input { width:22px; height:22px; margin:0; }
+  .file { position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
+  .btn { display:flex; align-items:center; justify-content:center; width:100%; min-height:54px; margin-top:14px; padding:10px 12px; border-radius:12px; background:var(--brand); color:#fff; font-size:17px; font-weight:700; cursor:pointer; text-align:center; user-select:none; -webkit-tap-highlight-color:transparent; border:0; font-family:inherit; }
+  .btn.sec { background:#e8edf3; color:var(--brand); min-height:44px; font-size:14px; }
+  .big-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  .big { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:120px; border-radius:16px; color:#fff; font-size:22px; font-weight:800; cursor:pointer; text-align:center; user-select:none; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 12px rgba(31,78,121,.18); }
+  .big small { margin-top:6px; font-size:12px; font-weight:600; opacity:.9; }
+  .big.in { background:var(--brand); }
+  .big.out { background:#2f6f4e; }
+  [aria-disabled="true"] { opacity:.45; pointer-events:none; box-shadow:none; }
+  .who { font-size:16px; font-weight:700; margin:0; }
+  .sub { font-size:12px; color:#5f7183; margin:4px 0 0; }
+  .status { min-height:22px; margin:12px 0 0; font-size:15px; font-weight:600; color:var(--err); line-height:1.5; }
+  .status.ok { color:var(--ok); } .status.info { color:#335b80; }
+  .result { white-space:pre-line; margin-top:12px; padding:14px; border-radius:12px; font-size:16px; font-weight:700; line-height:1.5; }
+  .result.ok { background:#e9f6ee; border:1px solid #9fd3b2; color:#14532d; }
+  .result.fail { background:#fdecea; border:1px solid #f1a9a0; color:#8a1c1c; font-size:18px; }
+  .gate h2 { color:#1f4e79; }
+  .gate.bad h2 { color:var(--err); }
+  .help { margin:8px 0 0; padding-left:22px; font-size:14px; line-height:1.6; }
+  .model { font-size:12px; color:#5f7183; margin:0 0 10px; }
+  .testbar { position:sticky; top:0; z-index:9; background:#c62828; color:#fff; font-weight:800; font-size:15px; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 14px; }
+  .testbar button { background:#fff; color:#c62828; border:0; border-radius:8px; padding:6px 10px; font:inherit; font-size:13px; font-weight:800; }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal[hidden] { display:none; }
+  .modal .box { background:#fff; border-radius:14px; padding:16px; width:100%; max-width:340px; }
+  .modal .box h2 { margin:0 0 10px; font-size:17px; color:var(--brand); }
+  .modal input { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; font:inherit; font-size:16px; }
+  .modal .row2 { margin-top:12px; }
+  .modal .msg { min-height:20px; color:var(--err); font-size:14px; font-weight:600; margin:8px 0 0; }
+  .types { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0 0; }
+  .types button { min-height:40px; border:1px solid var(--line); border-radius:10px; background:#f7f9fb; color:#33475b; font:inherit; font-size:15px; font-weight:800; }
+  .types button.on { background:#33475b; border-color:#33475b; color:#fff; }
+  button.big { border:0; font-family:inherit; width:100%; font-size:20px; padding:10px 8px; }
+  button.big span { white-space:nowrap; }
+  .big.b-scan { background:var(--brand); }
+  .big.b-fid { background:#2f6f4e; }
+  .big.dim { opacity:.55; box-shadow:none; }
+  .fallback { margin-top:14px; padding:12px; border-radius:12px; background:#fff8e6; border:1px solid #f0d58a; color:#4a3b10; font-size:14px; line-height:1.55; }
+  .fallback p { margin:0 0 4px; }
+  .fallback .btn { margin-top:10px; background:#8a5a00; }
+  .diag { font-size:11px; color:#7a8794; margin:4px 0 0; word-break:break-word; }
+  .scan { position:fixed; inset:0; z-index:60; background:#0d1b2a; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px)); }
+  .scan[hidden] { display:none; }
+  .scan h2 { margin:0 0 14px; font-size:19px; }
+  .scan-stage { position:relative; width:220px; height:286px; }
+  .scan-face { position:absolute; inset:0; width:100%; height:100%; }
+  .scan-face ellipse { fill:none; stroke:rgba(255,255,255,.55); stroke-width:3; stroke-dasharray:6 6; }
+  .scan-face path { fill:none; stroke:#5fb3ff; stroke-width:5; stroke-linecap:round; }
+  .scan.good .scan-face ellipse { stroke:#5be08a; stroke-dasharray:none; }
+  .scan-line { position:absolute; left:14%; right:14%; height:4px; top:8%; border-radius:4px; background:linear-gradient(90deg,transparent,#5fb3ff,transparent); box-shadow:0 0 14px 3px rgba(95,179,255,.7); animation:scanmove 1.6s ease-in-out infinite alternate; }
+  .scan.good .scan-line { background:linear-gradient(90deg,transparent,#5be08a,transparent); box-shadow:0 0 14px 3px rgba(91,224,138,.7); }
+  @keyframes scanmove { from { top:8%; } to { top:90%; } }
+  @media (prefers-reduced-motion: reduce) { .scan-line { animation-duration:3s; } }
+  .scan-hint { min-height:34px; margin:18px 0 6px; font-size:24px; font-weight:800; text-align:center; }
+  .scan-bar { width:220px; height:6px; border-radius:6px; background:rgba(255,255,255,.18); overflow:hidden; }
+  .scan-bar i { display:block; height:100%; width:0; background:#5be08a; transition:width .2s; }
+  .scan .sub { color:#b8c7d6; text-align:center; max-width:300px; }
+  .scan .btn.sec { max-width:300px; }
+  .scan-video { position:absolute; left:0; top:0; width:2px; height:2px; opacity:0; pointer-events:none; }
+  footer { position:fixed; left:0; right:0; bottom:0; text-align:center; font-size:11px; font-weight:600; letter-spacing:.06em; color:#536579; background:rgba(246,247,249,.95); border-top:1px solid #e3e9ef; padding:5px 10px calc(5px + env(safe-area-inset-bottom,0px)); }
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr">
+    <div>
+      <h1 data-i18n="title">五味鼎 員工打卡</h1>
+      <div class="store" id="store-label"></div>
+    </div>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="zh">中文</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+  </div>
+</header>
+<div class="testbar" id="testbar" hidden><span data-i18n="testBanner">測試模式 · 不檢查定位</span><button type="button" id="test-exit" data-i18n="testExit">離開測試模式</button></div>
+<main>
+  <p class="model" id="model-status" role="status"></p>
+
+  <section class="card" id="bad-store-card" hidden>
+    <h2 data-i18n="badStoreTitle">QR 碼不正確</h2>
+    <p data-i18n="badStoreText">請掃描店裡張貼的打卡 QR 碼再打開。</p>
+  </section>
+
+  <section class="card gate" id="gate-card" hidden>
+    <h2 id="gate-title"></h2>
+    <p id="gate-text"></p>
+    <ol class="help" id="gate-help" hidden>
+      <li data-i18n="help1">打開 iPhone「設定」</li>
+      <li data-i18n="help2">隱私權與安全性 › 定位服務：打開</li>
+      <li data-i18n="help3">往下找到「Safari 網站」› 選「使用 App 期間」並打開「準確位置」</li>
+      <li data-i18n="help4">回到這裡按「重試」；如果 Safari 問要不要允許位置，選「允許」</li>
+    </ol>
+    <button type="button" class="btn" id="gate-btn"></button>
+  </section>
+
+  <section class="card" id="setup-card" hidden>
+    <h2 data-i18n="setupTitle">第一次使用：設定</h2>
+    <div class="consent" id="consent">
+      <p data-i18n="consent1">打卡時用前鏡頭（自研掃描或自拍）或 iPhone Face ID 確認本人，比對只在這支手機上做。臉部資料只存在這支手機，照片和臉部資料都不會上傳。</p>
+      <p data-i18n="consent2">位置也只在這支手機上確認，座標不會上傳。伺服器只記錄你的姓名、工號、店別和打卡時間。</p>
+      <label><input type="checkbox" id="consent-check"> <span data-i18n="consentAgree">我已了解並同意</span></label>
+    </div>
+    <div class="row2">
+      <div><label class="f" for="first-name" data-i18n="firstName">名字</label><input type="text" id="first-name" maxlength="30" autocomplete="given-name"></div>
+      <div><label class="f" for="last-name" data-i18n="lastName">姓氏</label><input type="text" id="last-name" maxlength="30" autocomplete="family-name"></div>
+    </div>
+    <label class="f" for="emp-id" data-i18n="empId">工號</label>
+    <input type="text" id="emp-id" maxlength="40" autocomplete="off">
+    <label class="f" for="lang-select" data-i18n="language">語言</label>
+    <select id="lang-select">
+      <option value="zh">中文</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
+    <button type="button" class="btn" id="setup-save" data-i18n="setupSave">儲存，下一步</button>
+    <p class="sub" data-i18n="setupNoCam">這一頁只輸入資料，不會開鏡頭。</p>
+  </section>
+
+  <section class="card" id="punch-card" hidden>
+    <p class="who" id="who"></p>
+    <p class="sub" id="who-sub"></p>
+    <div class="types" role="radiogroup" aria-label="type">
+      <button type="button" id="type-in" data-type="上班" role="radio" data-i18n="typeIn">上班</button>
+      <button type="button" id="type-out" data-type="下班" role="radio" data-i18n="typeOut">下班</button>
+    </div>
+    <div class="big-row" id="punch-row">
+      <button type="button" class="big b-scan" id="scan-btn"><span data-i18n="mScan">自研掃描</span><small id="scan-sub"></small></button>
+      <button type="button" class="big b-fid" id="faceid-btn"><span data-i18n="mFaceId">iPhone Face ID</span><small id="faceid-sub"></small></button>
+    </div>
+    <div class="result" id="result" hidden></div>
+    <div class="fallback" id="fallback" hidden>
+      <p id="fallback-why"></p>
+      <p data-i18n="fbTail">可以先用自拍打卡：照片只在這支手機上比對，不會上傳。</p>
+      <label class="btn" id="selfie-btn" for="selfie-capture" role="button" data-i18n="selfieBtn">改用自拍打卡</label>
+      <input id="selfie-capture" class="file" type="file" accept="image/*" capture="user">
+    </div>
+    <p class="diag" id="diag" hidden></p>
+    <button type="button" class="btn sec" id="reenroll-btn" data-i18n="reenroll">重新設定這支手機</button>
+  </section>
+
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+</main>
+<footer id="appVersion">版本 c5-test · 2026-11-23</footer>
+<div class="scan" id="scan-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="scan-title">
+  <h2 id="scan-title" data-i18n="scanTitle">臉部掃描</h2>
+  <div class="scan-stage" aria-hidden="true">
+    <svg class="scan-face" viewBox="0 0 220 286">
+      <ellipse cx="110" cy="143" rx="86" ry="116"/>
+      <path d="M14 46 V14 H46 M174 14 H206 V46 M206 240 V272 H174 M46 272 H14 V240"/>
+    </svg>
+    <div class="scan-line"></div>
+  </div>
+  <p class="scan-hint" id="scan-hint" aria-live="assertive"></p>
+  <div class="scan-bar"><i id="scan-bar"></i></div>
+  <p class="sub" data-i18n="scanPrivacy">不顯示鏡頭畫面、不拍照、不存圖片；只在這支手機上計算。</p>
+  <button type="button" class="btn sec" id="scan-cancel" data-i18n="testCancel">取消</button>
+  <video id="scan-video" class="scan-video" playsinline muted autoplay aria-hidden="true"></video>
+</div>
+<div class="modal" id="test-modal" hidden role="dialog" aria-modal="true">
+  <div class="box">
+    <h2 data-i18n="testTitle">測試模式</h2>
+    <input type="password" id="test-pass" autocomplete="off" aria-label="passcode">
+    <p class="msg" id="test-msg" role="status"></p>
+    <div class="row2">
+      <button type="button" class="btn sec" id="test-cancel" data-i18n="testCancel">取消</button>
+      <button type="button" class="btn" id="test-ok" data-i18n="testOk">確定</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  /**
+   * c5-test：這頁放在我們自己的網域（GitHub Pages，checkin.wuweidinchinesecuisine.com/test/），在最上層執行，
+   * 不在 Google Apps Script 的框架裡 → 可以開鏡頭（getUserMedia）和 Face ID（WebAuthn）。
+   * Apps Script 只當後端：GET ?api=config 讀店座標／位置規則；POST（text/plain，不觸發 CORS 預檢）{action, payload}
+   * 呼叫 registerEmployee / submitClockPunch / unlockTestMode（跟 google.script.run 版同一組伺服器函式）。
+   */
+  var APP_LABEL = 'c5-test';
+  var API_URL = window.wwdClockApiUrl_ || 'https://script.google.com/macros/s/AKfycbywU5USvChBbzVKJ2ati_c7a6ZDK1mSWZDYJUCxRIZ-rs3458rol_J8MwdV73kAaIiw/exec';
+  var API_TIMEOUT_MS = 20000;
+  var CONFIG_TIMEOUT_MS = 6000;
+  /** WebAuthn rpId：密碼金鑰綁在這個網域。在別的主機（本機測試）打開時不指定，由瀏覽器用目前主機。 */
+  var RP_ID = 'checkin.wuweidinchinesecuisine.com';
+  /** 店（跟 Code.gs STORES／STORE_COORDS_DEFAULT 相同）。載入時再向伺服器讀一次（指令碼屬性 STORE_COORDS 改過座標會以伺服器為準）。 */
+  var STORES_LOCAL = {
+    plano1505: { id: 'plano1505', label: 'Plano 1505', lat: 33.0199295, lng: -96.7114207 },
+    lewisville2505: { id: 'lewisville2505', label: 'Lewisville 2505', lat: 33.0022266, lng: -96.9655853 },
+    fortworth3840: { id: 'fortworth3840', label: 'Fort Worth 3840', lat: 32.8385931, lng: -97.2922975 }
+  };
+  function storeFromUrl() {
+    var m = String(location.search || '').match(/[?&]store=([^&#]*)/);
+    var id = m ? decodeURIComponent(m[1].replace(/\+/g, ' ')).trim().toLowerCase() : '';
+    var s = Object.prototype.hasOwnProperty.call(STORES_LOCAL, id) ? STORES_LOCAL[id] : null;
+    return s ? { id: s.id, label: s.label, lat: s.lat, lng: s.lng } : null;
+  }
+  var STORE = storeFromUrl();
+  /** 位置規則（預設值；伺服器 config 會覆蓋，可用指令碼屬性改）：距離 − min(誤差, accuracyMaxM) ≤ radiusM 才通過。 */
+  var GPS_RADIUS_M = 150;
+  var GPS_ACCURACY_MAX_M = 100;
+  var PROFILE_KEY = 'wwd-clock-profile-v1';
+  var LANG_KEY = 'wwd-clock-lang';
+  var LIB_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.15/dist/face-api.js';
+  var MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.15/model/';
+  /** 臉部比對門檻：128 維特徵的歐氏距離 ≤ 0.50 才算同一人（face-api 常用 0.6，這裡收緊）。 */
+  var MATCH_THRESHOLD = 0.5;
+  var MIN_CONFIDENCE = 0.5;
+  var MAX_SIDE = 640;
+  /** c3：三種驗證方式，各自分開登錄。選擇存在手機。 */
+  var SCAN_KEY = 'wwd-clock-scan-v1';       // 自研掃描的臉部特徵（只在這支手機）
+  var FACEID_KEY = 'wwd-clock-faceid-v1';   // Face ID 密碼金鑰的 credential id（不是生物特徵）
+  var METHODS = ['scan', 'faceid', 'selfie'];
+  /**
+   * 自研掃描參數。臉框位置用「鏡頭原始畫面」座標（前鏡頭 getUserMedia 畫面沒有左右翻轉）：
+   * 臉在原始畫面左邊 = 人偏到自己的右邊 → 提示「請靠左」。MIRROR 設 true 可反過來（iPhone 實測後再定）。
+   */
+  var SCAN = { minSize: 0.28, maxSize: 0.70, centerTolX: 0.13, centerTolY: 0.13, targetY: 0.45, maxMove: 0.05,
+    needSteady: 3, samples: 5, maxSpread: 0.35, intervalMs: 120, timeoutMs: 25000, MIRROR: false };
+
+  var I18N = {
+    zh: {
+      gateChecking: '正在確認你在店裡…', gateCheckingTitle: '確認位置', gatePromptTitle: '需要使用位置',
+      gatePrompt: '這個打卡 App 只能在店裡使用。請允許使用位置，手機會確認你在 {store} 附近。位置只在這支手機上確認，不會上傳。',
+      gateAllow: '允許使用位置', gateRetry: '重試',
+      gateDeniedTitle: '位置權限被關閉', gateDeniedText: '沒有位置權限就不能設定或打卡。請照下面步驟打開：',
+      locWrong: '位置不對', gateNoFixTitle: '找不到位置',
+      help1: '打開 iPhone「設定」', help2: '隱私權與安全性 › 定位服務：打開',
+      help3: '往下找到「Safari 網站」› 選「使用 App 期間」，並打開「準確位置」', help4: '回到這裡按「重試」；如果 Safari 問要不要允許位置，選「允許」',
+      testBanner: '測試模式 · 不檢查定位', testExit: '離開測試模式', testTitle: '測試模式', testCancel: '取消', testOk: '確定',
+      testChecking: '確認中…', testExpired: '測試模式已過期或無效，已回到一般模式。',
+      title: '五味鼎 員工打卡', badStoreTitle: 'QR 碼不正確', badStoreText: '請掃描店裡張貼的打卡 QR 碼再打開。',
+      setupTitle: '第一次使用：設定',
+      consent1: '打卡時用前鏡頭（自研掃描或自拍）或 iPhone Face ID 確認本人，比對只在這支手機上做。臉部資料只存在這支手機，照片和臉部資料都不會上傳。',
+      consent2: '位置也只在這支手機上確認，座標不會上傳。伺服器只記錄你的姓名、工號、店別和打卡時間。',
+      consentAgree: '我已了解並同意', firstName: '名字', lastName: '姓氏', empId: '工號', language: '語言',
+      clockIn: '上班打卡', clockOut: '下班打卡', reenroll: '重新設定這支手機',
+      hello: '{name}（工號 {id}）', faceOnPhone: '設定時間 {t}。臉部特徵和 Face ID 金鑰只在這支手機。',
+      modelLoading: '正在載入臉部辨識（第一次較久，之後會快取）…', modelReady: '臉部辨識已就緒（只在這支手機上執行）。',
+      modelFail: '臉部辨識載入失敗，請確認網路後重新打開。',
+      needConsent: '請先勾選「我已了解並同意」。', needFields: '請填寫名字、姓氏和工號。',
+      analyzing: '正在手機上分析臉部…', noFace: '沒有偵測到臉，請正對鏡頭、光線充足再拍一次。',
+      manyFaces: '畫面裡有 {n} 張臉，請只拍自己一個人。', faceFail: '臉部分析失敗，請再拍一次。',
+      storageFail: '這支手機無法儲存設定（可能是無痕模式），請改用一般模式。',
+      setupDone: '設定完成。請選上班或下班，再按自研掃描或 Face ID 打卡。', setupServerFail: '臉部已存在這支手機，但姓名和工號沒有送到伺服器：{e}',
+      mismatch: '臉部比對不符（差異 {d}，需 ≤ {t}），沒有打卡。請本人再拍一次。',
+      locating: '比對通過，正在確認位置…', sending: '正在送出…',
+      inOk: '上班打卡成功', outOk: '下班打卡成功', okLine: '{date} {time}（CST）· {store}',
+      inFail: '打卡失敗，位置不對', outFail: '打卡失敗，位置不對',
+      locFar: '你離 {store} 約 {m} 公尺，需在 {r} 公尺內。', locNoFix: '無法取得位置，請打開定位後再試。',
+      locDenied: '定位被拒絕，請在設定允許這個網頁使用位置後再試。',
+      sendFail: '送出失敗，請確認網路後再試。', reenrollConfirm: '會刪除這支手機上的員工資料、臉部特徵和 Face ID 紀錄，確定嗎？',
+      reenrollStart: '這支手機的資料已刪除，請重新設定。', duplicate: '剛剛已經打過卡了。',
+      setupSave: '儲存，下一步', setupNoCam: '這一頁只輸入資料，不會開鏡頭。', typeIn: '上班', typeOut: '下班',
+      checkInFail: '打卡失敗', checkOutFail: '打卡失敗', subScanFirst: '{type} · 第一次會存臉部特徵', subScan: '{type} · 掃描比對',
+      subFaceIdFirst: '{type} · 第一次會建立密碼金鑰', subFaceId: '{type} · Face ID 驗證',
+      firstScanSaved: '第一次掃描已存成你的臉部特徵（只在這支手機）。', firstFaceIdSaved: '已在這支手機建立 Face ID 密碼金鑰。',
+      firstSelfieSaved: '第一張自拍已存成比對用的臉部特徵（只在這支手機）。',
+      fbScanBlocked: '自研掃描不能用：瀏覽器不允許開鏡頭（可能剛剛按了「不允許」；iPhone 可到「設定 › Safari › 相機」改成「詢問」或「允許」）。',
+      fbScanUnsupported: '自研掃描不能用：這個瀏覽器不能開鏡頭。', fbScanDenied: '自研掃描不能用：相機權限被拒絕。', fbScanNoCam: '自研掃描不能用：找不到前鏡頭。',
+      fbFaceIdBlocked: 'Face ID 不能用：瀏覽器不允許這個網頁使用密碼金鑰。', fbFaceIdUnsupported: 'Face ID 不能用：這支手機或瀏覽器不支援。',
+      fbFaceIdMaybe: 'Face ID 沒有完成；如果每次都這樣，可以先用下面的自拍打卡。',
+      fbTail: '可以先用自拍打卡：照片只在這支手機上比對，不會上傳。', selfieBtn: '改用自拍打卡',
+      mScan: '自研掃描', mFaceId: 'iPhone Face ID', 
+      faceidNotSupported: '這支手機或瀏覽器不支援 Face ID 驗證（需要 iPhone Safari 並開啟 Face ID）。',
+      scanTitle: '臉部掃描', scanPrivacy: '不顯示鏡頭畫面、不拍照、不存圖片；只在這支手機上計算。',
+      hintStart: '正在開啟鏡頭…', hintNone: '請把臉對準框框', hintMany: '畫面裡不只一個人', hintLeft: '請靠左', hintRight: '請靠右',
+      hintUp: '請靠上', hintDown: '請靠下', hintCloser: '請靠近', hintFarther: '請遠一點', hintHold: '請保持不動', hintOk: '很好，保持不動…',
+      notMe: '掃描不對，人不是本人', notMeSub: '沒有打卡（差異 {d}，需 ≤ {t}）。請本人再掃一次。',
+      scanUnsupported: '這個瀏覽器不能直接開鏡頭掃描。請改用下面的自拍打卡。',
+      scanBlocked: '無法開啟鏡頭：可能剛剛按了「不允許」（iPhone 可到「設定 › Safari › 相機」改成「詢問」或「允許」）。也可以改用下面的自拍打卡。',
+      scanDenied: '相機權限被拒絕。請到「設定 › Safari › 相機」允許，或改用下面的自拍打卡。',
+      scanNoCam: '找不到可用的前鏡頭。請改用下面的自拍打卡。', scanTimeout: '掃描逾時，沒有找到穩定的臉。請正對手機、光線充足再試。',
+      faceidBlocked: 'Face ID 無法使用：瀏覽器不允許這個網頁使用密碼金鑰（Face ID）。',
+      faceidCancel: 'Face ID 沒有完成（取消或逾時）。沒有打卡。',
+      faceidSecurity: 'Face ID 被瀏覽器擋下（網址與登錄時不同或不安全）。',
+      faceidExists: '這支手機已經有這個 Face ID 登錄了。', faceidFail: 'Face ID 驗證失敗，沒有打卡。',
+      faceidWrong: 'Face ID 回傳的不是這支手機登錄的那一把金鑰，沒有打卡。', faceidNoUv: 'Face ID 沒有確認本人（沒有使用者驗證），沒有打卡。',
+      faceidOtherSite: '這支手機的 Face ID 是在另一個網址登錄的，請重新登錄這個方式。'
+    },
+    en: {
+      gateChecking: 'Checking that you are in the store…', gateCheckingTitle: 'Checking location', gatePromptTitle: 'Location needed',
+      gatePrompt: 'This clock-in app only works in the store. Please allow Location so this phone can confirm you are at {store}. Your location is checked on this phone only and is not uploaded.',
+      gateAllow: 'Allow location', gateRetry: 'Retry',
+      gateDeniedTitle: 'Location is turned off', gateDeniedText: 'Without Location you cannot set up or clock in. To turn it on:',
+      locWrong: 'Location is not right', gateNoFixTitle: 'Location not found',
+      help1: 'Open the iPhone Settings app', help2: 'Privacy & Security › Location Services: On',
+      help3: 'Scroll to "Safari Websites" › choose "While Using the App" and turn on "Precise Location"', help4: 'Come back and tap Retry. If Safari asks about your location, tap Allow.',
+      testBanner: 'TEST MODE · location not checked', testExit: 'Exit test mode', testTitle: 'Test mode', testCancel: 'Cancel', testOk: 'OK',
+      testChecking: 'Checking…', testExpired: 'Test mode expired or is invalid. Back to normal mode.',
+      title: 'Wu Wei Din Clock-in', badStoreTitle: 'Wrong QR code', badStoreText: 'Please scan the clock-in QR code posted in the store.',
+      setupTitle: 'First-time setup',
+      consent1: 'To clock in, the front camera (custom scan or selfie) or iPhone Face ID confirms it is you, and matching happens on this phone only. Your face data stays on this phone; no photo or face data is uploaded.',
+      consent2: 'Your location is also checked on this phone only; coordinates are not uploaded. The server only records your name, employee ID, store and punch time.',
+      consentAgree: 'I understand and agree', firstName: 'First name', lastName: 'Last name', empId: 'Employee ID', language: 'Language',
+      clockIn: 'Check in', clockOut: 'Check out', reenroll: 'Reset this phone',
+      hello: '{name} (ID {id})', faceOnPhone: 'Set up {t}. Face features and the Face ID key stay on this phone.',
+      modelLoading: 'Loading face recognition (slow the first time, cached after)…', modelReady: 'Face recognition ready (runs on this phone only).',
+      modelFail: 'Face recognition failed to load. Check your connection and reopen.',
+      needConsent: 'Please tick "I understand and agree" first.', needFields: 'Please fill in first name, last name and employee ID.',
+      analyzing: 'Checking your face on this phone…', noFace: 'No face found. Face the camera in good light and try again.',
+      manyFaces: '{n} faces in the picture. Only you, please.', faceFail: 'Face check failed. Please try again.',
+      storageFail: 'This phone cannot save the setup (private mode?). Use normal browsing.',
+      setupDone: 'Setup done. Pick check in or check out, then tap Custom scan or Face ID.', setupServerFail: 'Face saved on this phone, but name and ID did not reach the server: {e}',
+      mismatch: 'Face does not match (distance {d}, needs ≤ {t}). Not clocked. Please try again yourself.',
+      locating: 'Face matched. Checking location…', sending: 'Sending…',
+      inOk: 'Check in successful', outOk: 'Check out successful', okLine: '{date} {time} (CST) · {store}',
+      inFail: 'Check in fail, location is not right', outFail: 'Check out fail, location is not right',
+      locFar: 'You are about {m} m from {store}; you must be within {r} m.', locNoFix: 'Could not get your location. Turn on Location and try again.',
+      locDenied: 'Location was denied. Allow this page to use your location and try again.',
+      sendFail: 'Could not send. Check your connection and try again.', reenrollConfirm: 'This deletes the employee details, face features and Face ID record on this phone. Continue?',
+      reenrollStart: 'Data on this phone deleted. Please set up again.', duplicate: 'You just clocked.',
+      setupSave: 'Save and continue', setupNoCam: 'This page only takes your details. The camera does not turn on.', typeIn: 'Check in', typeOut: 'Check out',
+      checkInFail: 'Check in fail', checkOutFail: 'Check out fail', subScanFirst: '{type} · first scan saves your face features', subScan: '{type} · scan match',
+      subFaceIdFirst: '{type} · first time creates a passkey', subFaceId: '{type} · Face ID check',
+      firstScanSaved: 'Your first scan was saved as your face features (on this phone only).', firstFaceIdSaved: 'A Face ID passkey was created on this phone.',
+      firstSelfieSaved: 'Your first selfie was saved as the face features to match (on this phone only).',
+      fbScanBlocked: 'Custom scan is not available: the browser does not allow the camera ("Don\'t Allow" may have been tapped; on iPhone go to Settings › Safari › Camera and choose Ask or Allow).',
+      fbScanUnsupported: 'Custom scan is not available: this browser cannot open the camera.', fbScanDenied: 'Custom scan is not available: camera permission was denied.', fbScanNoCam: 'Custom scan is not available: no front camera found.',
+      fbFaceIdBlocked: 'Face ID is not available: the browser does not allow passkeys on this page.', fbFaceIdUnsupported: 'Face ID is not available: this phone or browser does not support it.',
+      fbFaceIdMaybe: 'Face ID did not finish. If this happens every time, use the selfie option below.',
+      fbTail: 'You can clock with a selfie for now: the photo is matched on this phone only and is not uploaded.', selfieBtn: 'Use a selfie instead',
+      mScan: 'Custom scan', mFaceId: 'iPhone Face ID', 
+      faceidNotSupported: 'This phone or browser does not support Face ID verification (needs iPhone Safari with Face ID on).',
+      scanTitle: 'Face scan', scanPrivacy: 'No camera picture is shown, no photo is taken or saved; everything runs on this phone.',
+      hintStart: 'Turning on the camera…', hintNone: 'Put your face in the frame', hintMany: 'More than one person', hintLeft: 'Move left', hintRight: 'Move right',
+      hintUp: 'Move up', hintDown: 'Move down', hintCloser: 'Move closer', hintFarther: 'Move back a little', hintHold: 'Hold still', hintOk: 'Good, hold still…',
+      notMe: 'Scan failed, not the registered person', notMeSub: 'Not clocked (distance {d}, needs ≤ {t}). The registered person should scan again.',
+      scanUnsupported: 'This browser cannot open the camera for scanning. Please use the selfie option below.',
+      scanBlocked: 'Cannot open the camera: "Don\'t Allow" may have been tapped (on iPhone: Settings › Safari › Camera › Ask or Allow). You can also use the selfie option below.',
+      scanDenied: 'Camera permission was denied. Allow it in Settings › Safari › Camera, or use the selfie option below.',
+      scanNoCam: 'No front camera found. Please use the selfie option below.', scanTimeout: 'Scan timed out without a steady face. Face the phone in good light and try again.',
+      faceidBlocked: 'Face ID is not available: the browser does not allow passkeys (Face ID) on this page.',
+      faceidCancel: 'Face ID did not finish (cancelled or timed out). Not clocked.',
+      faceidSecurity: 'Face ID was blocked by the browser (different or insecure address from setup).',
+      faceidExists: 'Face ID is already set up on this phone.', faceidFail: 'Face ID check failed. Not clocked.',
+      faceidWrong: 'Face ID returned a different key than the one set up on this phone. Not clocked.', faceidNoUv: 'Face ID did not confirm the user (no user verification). Not clocked.',
+      faceidOtherSite: 'Face ID on this phone was set up on a different address. Please set up this method again.'
+    },
+    es: {
+      gateChecking: 'Revisando que esté en la tienda…', gateCheckingTitle: 'Revisando ubicación', gatePromptTitle: 'Se necesita la ubicación',
+      gatePrompt: 'Esta aplicación solo funciona en la tienda. Permita la ubicación para que este teléfono confirme que está en {store}. La ubicación se revisa solo en este teléfono y no se sube.',
+      gateAllow: 'Permitir ubicación', gateRetry: 'Reintentar',
+      gateDeniedTitle: 'La ubicación está desactivada', gateDeniedText: 'Sin ubicación no puede configurar ni marcar. Para activarla:',
+      locWrong: 'La ubicación no es correcta', gateNoFixTitle: 'No se encontró la ubicación',
+      help1: 'Abra Ajustes del iPhone', help2: 'Privacidad y seguridad › Localización: activada',
+      help3: 'Busque "Sitios web de Safari" › elija "Al usar la app" y active "Ubicación exacta"', help4: 'Regrese y toque Reintentar. Si Safari pregunta por la ubicación, toque Permitir.',
+      testBanner: 'MODO DE PRUEBA · no se revisa la ubicación', testExit: 'Salir del modo de prueba', testTitle: 'Modo de prueba', testCancel: 'Cancelar', testOk: 'Aceptar',
+      testChecking: 'Revisando…', testExpired: 'El modo de prueba venció o no es válido. Volvió al modo normal.',
+      title: 'Wu Wei Din Registro de asistencia', badStoreTitle: 'Código QR incorrecto', badStoreText: 'Escanee el código QR de asistencia que está en la tienda.',
+      setupTitle: 'Configuración inicial',
+      consent1: 'Para marcar, la cámara frontal (escaneo propio o selfie) o Face ID del iPhone confirma que es usted, y la comparación se hace solo en este teléfono. Los datos de su cara se quedan en este teléfono; no se sube ninguna foto ni dato facial.',
+      consent2: 'La ubicación también se revisa solo en este teléfono; no se suben coordenadas. El servidor solo guarda su nombre, número de empleado, tienda y hora.',
+      consentAgree: 'Entiendo y acepto', firstName: 'Nombre', lastName: 'Apellido', empId: 'Número de empleado', language: 'Idioma',
+      clockIn: 'Entrada', clockOut: 'Salida', reenroll: 'Restablecer este teléfono',
+      hello: '{name} (N.º {id})', faceOnPhone: 'Configurado {t}. Los rasgos faciales y la llave de Face ID quedan en este teléfono.',
+      modelLoading: 'Cargando reconocimiento facial (la primera vez tarda más)…', modelReady: 'Reconocimiento facial listo (solo en este teléfono).',
+      modelFail: 'No se pudo cargar el reconocimiento facial. Revise la conexión y vuelva a abrir.',
+      needConsent: 'Primero marque "Entiendo y acepto".', needFields: 'Escriba nombre, apellido y número de empleado.',
+      analyzing: 'Revisando su cara en este teléfono…', noFace: 'No se detectó ninguna cara. Mire a la cámara con buena luz e intente otra vez.',
+      manyFaces: 'Hay {n} caras en la foto. Solo usted, por favor.', faceFail: 'Falló la revisión facial. Intente otra vez.',
+      storageFail: 'Este teléfono no puede guardar la configuración (¿modo privado?). Use el modo normal.',
+      setupDone: 'Configuración lista. Elija entrada o salida y toque Escaneo propio o Face ID.', setupServerFail: 'La cara quedó en este teléfono, pero el nombre y número no llegaron al servidor: {e}',
+      mismatch: 'La cara no coincide (distancia {d}, debe ser ≤ {t}). No se marcó. Intente otra vez.',
+      locating: 'Cara correcta. Revisando ubicación…', sending: 'Enviando…',
+      inOk: 'Entrada registrada', outOk: 'Salida registrada', okLine: '{date} {time} (CST) · {store}',
+      inFail: 'Fallo al marcar entrada, la ubicación no es correcta', outFail: 'Fallo al marcar salida, la ubicación no es correcta',
+      locFar: 'Está a unos {m} m de {store}; debe estar a menos de {r} m.', locNoFix: 'No se pudo obtener la ubicación. Active la ubicación e intente otra vez.',
+      locDenied: 'Se negó la ubicación. Permita que esta página use su ubicación e intente otra vez.',
+      sendFail: 'No se pudo enviar. Revise la conexión e intente otra vez.', reenrollConfirm: 'Esto borra los datos del empleado, los rasgos faciales y el registro de Face ID de este teléfono. ¿Continuar?',
+      reenrollStart: 'Datos de este teléfono borrados. Configure otra vez.', duplicate: 'Acaba de marcar.',
+      setupSave: 'Guardar y seguir', setupNoCam: 'Esta página solo pide sus datos. La cámara no se enciende.', typeIn: 'Entrada', typeOut: 'Salida',
+      checkInFail: 'Fallo al marcar entrada', checkOutFail: 'Fallo al marcar salida', subScanFirst: '{type} · el primer escaneo guarda su cara', subScan: '{type} · comparar escaneo',
+      subFaceIdFirst: '{type} · la primera vez crea una llave de acceso', subFaceId: '{type} · verificar con Face ID',
+      firstScanSaved: 'Su primer escaneo se guardó como sus rasgos faciales (solo en este teléfono).', firstFaceIdSaved: 'Se creó una llave de acceso de Face ID en este teléfono.',
+      firstSelfieSaved: 'Su primera selfie se guardó como rasgos faciales para comparar (solo en este teléfono).',
+      fbScanBlocked: 'El escaneo propio no está disponible: el navegador no permite la cámara (quizá se tocó "No permitir"; en iPhone: Ajustes › Safari › Cámara › Preguntar o Permitir).',
+      fbScanUnsupported: 'El escaneo propio no está disponible: este navegador no puede abrir la cámara.', fbScanDenied: 'El escaneo propio no está disponible: se negó el permiso de la cámara.', fbScanNoCam: 'El escaneo propio no está disponible: no se encontró la cámara frontal.',
+      fbFaceIdBlocked: 'Face ID no está disponible: el navegador no permite llaves de acceso en esta página.', fbFaceIdUnsupported: 'Face ID no está disponible: este teléfono o navegador no lo admite.',
+      fbFaceIdMaybe: 'Face ID no terminó. Si pasa siempre, use la opción de selfie de abajo.',
+      fbTail: 'Por ahora puede marcar con una selfie: la foto se compara solo en este teléfono y no se sube.', selfieBtn: 'Usar una selfie',
+      mScan: 'Escaneo propio', mFaceId: 'iPhone Face ID', 
+      faceidNotSupported: 'Este teléfono o navegador no admite la verificación con Face ID (necesita Safari en iPhone con Face ID activado).',
+      scanTitle: 'Escaneo facial', scanPrivacy: 'No se muestra la cámara, no se toma ni se guarda ninguna foto; todo se calcula en este teléfono.',
+      hintStart: 'Encendiendo la cámara…', hintNone: 'Ponga la cara dentro del marco', hintMany: 'Hay más de una persona', hintLeft: 'Muévase a la izquierda', hintRight: 'Muévase a la derecha',
+      hintUp: 'Muévase hacia arriba', hintDown: 'Muévase hacia abajo', hintCloser: 'Acérquese', hintFarther: 'Aléjese un poco', hintHold: 'No se mueva', hintOk: 'Bien, no se mueva…',
+      notMe: 'Escaneo fallido, no es la persona registrada', notMeSub: 'No se marcó (distancia {d}, debe ser ≤ {t}). La persona registrada debe escanear otra vez.',
+      scanUnsupported: 'Este navegador no puede abrir la cámara para escanear. Use la opción de selfie de abajo.',
+      scanBlocked: 'No se pudo abrir la cámara: quizá se tocó "No permitir" (en iPhone: Ajustes › Safari › Cámara › Preguntar o Permitir). También puede usar la opción de selfie de abajo.',
+      scanDenied: 'Se negó el permiso de la cámara. Permítalo en Ajustes › Safari › Cámara, o use la opción de selfie de abajo.',
+      scanNoCam: 'No se encontró la cámara frontal. Use la opción de selfie de abajo.', scanTimeout: 'Se acabó el tiempo sin una cara estable. Mire el teléfono con buena luz e intente otra vez.',
+      faceidBlocked: 'Face ID no está disponible: el navegador no permite llaves de acceso (Face ID) en esta página.',
+      faceidCancel: 'Face ID no terminó (cancelado o tiempo agotado). No se marcó.',
+      faceidSecurity: 'El navegador bloqueó Face ID (dirección distinta a la de la configuración o no segura).',
+      faceidExists: 'Face ID ya está configurado en este teléfono.', faceidFail: 'Falló la verificación con Face ID. No se marcó.',
+      faceidWrong: 'Face ID devolvió una llave distinta a la configurada en este teléfono. No se marcó.', faceidNoUv: 'Face ID no confirmó al usuario (sin verificación). No se marcó.',
+      faceidOtherSite: 'Face ID de este teléfono se configuró en otra dirección. Configure este método otra vez.'
+    }
+  };
+
+  var state = { lang: 'zh', busy: false, engine: null, enginePromise: null, gate: '', lastLoc: null, scanning: false, faceIdSupport: '', env: null,
+    punchType: '', blocked: { scan: null, faceid: null } };
+  function $(id) { return document.getElementById(id); }
+  function t(key, vars) {
+    var d = I18N[state.lang] || I18N.zh;
+    var s = d[key] != null ? d[key] : (I18N.zh[key] != null ? I18N.zh[key] : key);
+    if (vars) Object.keys(vars).forEach(function (k) { s = s.split('{' + k + '}').join(String(vars[k])); });
+    return s;
+  }
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { localStorage.setItem(k, v); }
+  var TEST_KEY = 'wwd-clock-test-token-v1';
+  /** 測試模式權杖（伺服器簽章，12 小時）。手機只看有效期決定畫面；真正的驗證在伺服器。 */
+  function testToken() {
+    try { var o = JSON.parse(lsGet(TEST_KEY) || 'null'); if (o && o.token && Number(o.exp) > Date.now()) return o.token; } catch (e) {}
+    return '';
+  }
+  function isTestMode() { return !!testToken(); }
+  function clearTestToken() { try { localStorage.removeItem(TEST_KEY); } catch (e) {} }
+  function getProfile() {
+    try {
+      var p = JSON.parse(lsGet(PROFILE_KEY) || 'null');
+      // c3：設定資料（姓名、工號）跟驗證方式分開；自拍特徵仍在 profile.descriptor（與 c2 相容）。
+      return (p && p.employeeId && p.firstName != null) ? p : null;
+    } catch (e) { return null; }
+  }
+
+  function setStatus(text, kind) { var el = $('status'); el.textContent = text || ''; el.className = 'status' + (kind ? ' ' + kind : ''); }
+  function setModel(text) { $('model-status').textContent = text || ''; }
+
+  function applyLang(lang) {
+    state.lang = I18N[lang] ? lang : 'zh';
+    try { lsSet(LANG_KEY, state.lang); } catch (e) {}
+    document.documentElement.lang = state.lang === 'zh' ? 'zh-Hant' : state.lang;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+    Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === state.lang); });
+    var sel = $('lang-select'); if (sel) sel.value = state.lang;
+    if (state.gate && state.gate !== 'ok' && STORE) showGate(state.gate, state.lastLoc); else paint();
+  }
+
+  function deviceNote() {
+    var ua = String(navigator.userAgent || '');
+    var dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Macintosh/.test(ua) ? 'Mac' : 'Other';
+    var m = ua.match(/OS (\d+)[_.](\d+)/) || ua.match(/Android (\d+)(?:\.(\d+))?/);
+    var br = /Edg/.test(ua) ? 'Edge' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /FxiOS|Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Browser';
+    return (dev + (m ? ' ' + m[1] + (m[2] ? '.' + m[2] : '') : '') + ' ' + br + ' · ' + APP_LABEL).slice(0, 80);
+  }
+
+  /** 送到伺服器的打卡內容：沒有照片、臉部特徵、座標或距離。 */
+  function buildPunchPayload(profile, storeId, type, locationCode, tt, method) {
+    var o = {
+      store: String(storeId || ''),
+      employeeId: String(profile.employeeId || ''),
+      employeeName: String((profile.firstName || '') + ' ' + (profile.lastName || '')).trim(),
+      type: type === '下班' ? '下班' : '上班',
+      matched: true,
+      location: locationCode,
+      device: deviceNote(),
+      lang: state.lang,
+      method: METHODS.indexOf(method) >= 0 ? method : 'selfie'
+    };
+    if (tt) o.testToken = String(tt);
+    return o;
+  }
+  /** 送到伺服器的登錄內容：只有姓名、工號、語言。 */
+  function buildEmployeePayload(profile, storeId, action, tt) {
+    var o = {
+      store: String(storeId || ''), employeeId: profile.employeeId, firstName: profile.firstName, lastName: profile.lastName,
+      lang: profile.lang, action: action === 'reenroll' ? 'reenroll' : 'new', device: deviceNote()
+    };
+    if (tt) o.testToken = String(tt);
+    return o;
+  }
+
+  /** 帶逾時的 fetch，回傳解析後的 JSON；網路錯誤、逾時、不是 JSON → reject。 */
+  function fetchJson(url, opts, ms) {
+    return new Promise(function (resolve, reject) {
+      var done = false;
+      var timer = setTimeout(function () { if (!done) { done = true; reject(new Error('timeout')); } }, ms || API_TIMEOUT_MS);
+      fetch(url, opts).then(function (r) { return r.text().then(function (txt) { return { status: r.status, txt: txt }; }); }).then(function (x) {
+        if (done) return; done = true; clearTimeout(timer);
+        var o; try { o = JSON.parse(x.txt); } catch (e) { reject(new Error('HTTP ' + x.status)); return; }
+        resolve(o);
+      }, function (e) { if (done) return; done = true; clearTimeout(timer); reject(e instanceof Error ? e : new Error(String(e))); });
+    });
+  }
+  /** 呼叫 Apps Script JSON API（取代 google.script.run）。回傳的物件跟原本 google.script.run 一樣。 */
+  function server(fn, arg) {
+    window.__wwdApiCalls = (window.__wwdApiCalls || 0) + 1;
+    return fetchJson(API_URL, {
+      method: 'POST', mode: 'cors', credentials: 'omit', redirect: 'follow', cache: 'no-store',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: fn, payload: arg })
+    }, API_TIMEOUT_MS);
+  }
+  /** 載入時讀伺服器的店座標＋位置規則；讀不到就用頁面內建的預設值（跟 Code.gs 相同）。 */
+  function loadConfig() {
+    if (!STORE) return Promise.resolve(null);
+    var url = API_URL + (API_URL.indexOf('?') < 0 ? '?' : '&') + 'api=config&store=' + encodeURIComponent(STORE.id);
+    return fetchJson(url, { method: 'GET', mode: 'cors', credentials: 'omit', redirect: 'follow', cache: 'no-store' }, CONFIG_TIMEOUT_MS).then(function (c) {
+      if (c && c.ok && c.store && c.store.id === STORE.id && isFinite(Number(c.store.lat)) && isFinite(Number(c.store.lng))) {
+        STORE.lat = Number(c.store.lat); STORE.lng = Number(c.store.lng); if (c.store.label) STORE.label = String(c.store.label);
+      }
+      if (c && c.gpsRule) {
+        if (Number(c.gpsRule.radiusM) > 0) GPS_RADIUS_M = Number(c.gpsRule.radiusM);
+        if (Number(c.gpsRule.accuracyMaxM) > 0) GPS_ACCURACY_MAX_M = Number(c.gpsRule.accuracyMaxM);
+      }
+      state.config = c && c.ok ? 'server' : 'local';
+      return c;
+    }, function (e) { state.config = 'local'; state.configError = (e && e.message) || 'Error'; return null; });
+  }
+  function rpIdForHere() { var h = location.hostname; return (h === RP_ID) ? RP_ID : ''; }
+
+  // ---------- 臉部（只在手機上） ----------
+  function loadScript(url) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = url; s.async = true; s.crossOrigin = 'anonymous';
+      s.onload = function () { res(); }; s.onerror = function () { rej(new Error('load ' + url)); };
+      document.head.appendChild(s);
+    });
+  }
+  function loadEngine() {
+    if (window.wwdClockEngineOverride_) return Promise.resolve(window.wwdClockEngineOverride_);
+    if (state.enginePromise) return state.enginePromise;
+    setModel(t('modelLoading'));
+    state.enginePromise = (window.faceapi ? Promise.resolve() : loadScript(LIB_URL)).then(function () {
+      var fa = window.faceapi;
+      return (fa.tf && fa.tf.ready ? fa.tf.ready() : Promise.resolve()).then(function () {
+        return Promise.all([
+          fa.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+          fa.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+          fa.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+      }).then(function () { setModel(t('modelReady')); return { describe: describeWithFaceApi, detectFrame: detectFrameWithFaceApi }; });
+    }).catch(function (err) { state.enginePromise = null; setModel(t('modelFail')); throw err; });
+    return state.enginePromise;
+  }
+  function fileToCanvas(file) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, sc = Math.min(1, MAX_SIDE / Math.max(w, h));
+        var c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * sc)); c.height = Math.max(1, Math.round(h * sc));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error('decode')); };
+      img.src = url;
+    });
+  }
+  /** 臉太大、塞滿畫面時偵測器會找不到；第二次把照片放在加白邊的畫布中間再試。 */
+  function padCanvas(c) {
+    var p = document.createElement('canvas'), m = Math.round(Math.max(c.width, c.height) * 0.6);
+    p.width = c.width + 2 * m; p.height = c.height + 2 * m;
+    var g = p.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, p.width, p.height); g.drawImage(c, m, m);
+    return p;
+  }
+  function describeWithFaceApi(file) {
+    var fa = window.faceapi;
+    function detect(c) { return fa.detectAllFaces(c, new fa.SsdMobilenetv1Options({ minConfidence: MIN_CONFIDENCE, maxResults: 5 })).withFaceLandmarks().withFaceDescriptors(); }
+    return fileToCanvas(file).then(function (c) {
+      return detect(c).then(function (r) { return (r && r.length) ? r : detect(padCanvas(c)); });
+    }).then(function (r) {
+      r = r || [];
+      if (r.length !== 1) return { count: r.length, descriptor: null };
+      return { count: 1, descriptor: Array.prototype.map.call(r[0].descriptor, function (x) { return Math.round(x * 1e6) / 1e6; }) };
+    });
+  }
+  function describe(file) { return loadEngine().then(function (e) { return e.describe(file); }); }
+  function distance(a, b) {
+    if (!a || !b || a.length !== b.length) return Infinity;
+    var s = 0; for (var i = 0; i < a.length; i++) { var d = a[i] - b[i]; s += d * d; } return Math.sqrt(s);
+  }
+  function faceCountMsg(n) { return !n ? t('noFace') : (n > 1 ? t('manyFaces', { n: n }) : ''); }
+
+  // ---------- c4：兩個按鈕（自研掃描、Face ID）；自拍只在被擋時自動出現 ----------
+  var LAST_KEY = 'wwd-clock-last-v1';        // 這支手機最後一次成功打卡 {type, day}，只用來預選上班／下班
+  function readJson(k) { try { return JSON.parse(lsGet(k) || 'null'); } catch (e) { return null; } }
+  function scanEntry(p) { var o = readJson(SCAN_KEY); return (o && p && o.employeeId === p.employeeId && o.descriptor && o.descriptor.length === 128) ? o : null; }
+  function faceIdEntry(p) { var o = readJson(FACEID_KEY); return (o && p && o.employeeId === p.employeeId && o.credId) ? o : null; }
+  function selfieReady(p) { return !!(p && p.descriptor && p.descriptor.length === 128); }
+  function todayKey() { return nowText().slice(0, 10); }
+  /** 預選：今天在這支手機最後一次成功是上班 → 預選下班，其餘預選上班。員工可以自己改。 */
+  function defaultType() { var l = readJson(LAST_KEY); return (l && l.day === todayKey() && l.type === '上班') ? '下班' : '上班'; }
+  function setType(tp) { if (state.busy) return; state.punchType = tp === '下班' ? '下班' : '上班'; $('result').hidden = true; setStatus(''); paint(); }
+  /** 被擋的原因（null = 沒被擋）。載入時用權限政策先判斷；Safari 沒有這個 API，就等第一次失敗再判斷。 */
+  function markBlocked(which, key) { state.blocked[which] = key; paint(); }
+  function initialBlocks() {
+    var env = state.env || {};
+    if (!env.gum) state.blocked.scan = 'fbScanUnsupported'; else if (env.camera === false) state.blocked.scan = 'fbScanBlocked';
+    if (!env.webauthn || !env.secure) state.blocked.faceid = 'fbFaceIdUnsupported'; else if (env.pkGet === false || env.pkCreate === false) state.blocked.faceid = 'fbFaceIdBlocked';
+  }
+
+  /** 環境偵測：在不在框架裡、權限政策（Chrome 有 API；Safari 回傳 null = 不知道）。 */
+  function policyAllows(feature) {
+    try { var pp = document.permissionsPolicy || document.featurePolicy; if (pp && pp.allowsFeature) return !!pp.allowsFeature(feature); } catch (e) {}
+    return null;
+  }
+  function inFrame() { try { return window.top !== window.self; } catch (e) { return true; } }
+  function detectEnv() {
+    return { inFrame: inFrame(), secure: !!window.isSecureContext, camera: policyAllows('camera'),
+      pkCreate: policyAllows('publickey-credentials-create'), pkGet: policyAllows('publickey-credentials-get'),
+      gum: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia), webauthn: !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create) };
+  }
+  /** Face ID 支援度先在載入時查好，按鈕按下去時才能直接（同步）呼叫，保住 Safari 的「使用者手勢」。 */
+  function probeFaceId() {
+    var env = state.env || detectEnv();
+    if (!env.webauthn || !env.secure) { state.faceIdSupport = 'unsupported'; paint(); return Promise.resolve(state.faceIdSupport); }
+    var f = window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable;
+    return (f ? Promise.resolve(f.call(window.PublicKeyCredential)) : Promise.resolve(false)).then(function (yes) {
+      state.faceIdSupport = yes ? 'ok' : 'noplatform';
+      if (!yes && !state.blocked.faceid) state.blocked.faceid = 'fbFaceIdUnsupported';
+      return state.faceIdSupport;
+    }, function () { state.faceIdSupport = 'noplatform'; return state.faceIdSupport; }).then(function (v) { paint(); return v; });
+  }
+
+  // ---------- 選項 A：自研掃描（不顯示鏡頭畫面、不拍照、不存圖） ----------
+  /** 由臉框算提示。det = { count, box:{x,y,width,height}, w, h }（原始畫面座標）。 */
+  function scanHint(det) {
+    if (!det || !det.count) return 'none';
+    if (det.count > 1) return 'many';
+    var b = det.box, w = det.w || 1, h = det.h || 1;
+    var size = b.width / w, cx = (b.x + b.width / 2) / w, cy = (b.y + b.height / 2) / h;
+    if (size < SCAN.minSize) return 'closer';
+    if (size > SCAN.maxSize) return 'farther';
+    var dx = cx - 0.5; if (SCAN.MIRROR) dx = -dx;
+    if (dx < -SCAN.centerTolX) return 'left';
+    if (dx > SCAN.centerTolX) return 'right';
+    var dy = cy - SCAN.targetY;
+    if (dy < -SCAN.centerTolY) return 'down';
+    if (dy > SCAN.centerTolY) return 'up';
+    return 'ok';
+  }
+  function boxMove(a, b) {
+    if (!a || !b || !a.box || !b.box) return 1;
+    var ax = (a.box.x + a.box.width / 2) / a.w, ay = (a.box.y + a.box.height / 2) / a.h;
+    var bx = (b.box.x + b.box.width / 2) / b.w, by = (b.box.y + b.box.height / 2) / b.h;
+    return Math.max(Math.abs(ax - bx), Math.abs(ay - by), Math.abs(a.box.width / a.w - b.box.width / b.w));
+  }
+  function averageDescriptor(list) {
+    var n = list.length, out = [];
+    for (var i = 0; i < 128; i++) { var sum = 0; for (var j = 0; j < n; j++) sum += list[j][i]; out.push(Math.round(sum / n * 1e6) / 1e6); }
+    return out;
+  }
+  var HINT_KEYS = { start: 'hintStart', none: 'hintNone', many: 'hintMany', left: 'hintLeft', right: 'hintRight', up: 'hintUp', down: 'hintDown',
+    closer: 'hintCloser', farther: 'hintFarther', hold: 'hintHold', ok: 'hintOk' };
+  function showScan(hint, progress) {
+    var ov = $('scan-overlay'); ov.hidden = false;
+    ov.className = 'scan' + (hint === 'ok' ? ' good' : '');
+    $('scan-hint').textContent = t(HINT_KEYS[hint] || 'hintNone');
+    $('scan-hint').setAttribute('data-hint', hint);
+    $('scan-bar').style.width = Math.round(Math.max(0, Math.min(1, progress || 0)) * 100) + '%';
+  }
+  /** 只在記憶體裡偵測：face-api 直接讀 video 元素（不畫到畫布、不存檔）。 */
+  function detectFrameWithFaceApi(video, wantDescriptor) {
+    var fa = window.faceapi, w = video.videoWidth, h = video.videoHeight;
+    var q = fa.detectAllFaces(video, new fa.SsdMobilenetv1Options({ minConfidence: MIN_CONFIDENCE, maxResults: 3 }));
+    return (wantDescriptor ? q.withFaceLandmarks().withFaceDescriptors() : q).then(function (r) {
+      r = r || [];
+      if (r.length !== 1) return { count: r.length, w: w, h: h };
+      var det = wantDescriptor ? r[0].detection : r[0], b = det.box;
+      return { count: 1, w: w, h: h, box: { x: b.x, y: b.y, width: b.width, height: b.height },
+        descriptor: wantDescriptor ? Array.prototype.slice.call(r[0].descriptor) : null };
+    });
+  }
+  function openCamera() {
+    var md = navigator.mediaDevices;
+    if (!md || !md.getUserMedia) return Promise.reject({ code: 'unsupported' });
+    if (policyAllows('camera') === false) return Promise.reject({ code: 'blocked', name: 'PermissionsPolicy' });
+    return md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false }).catch(function (e) {
+      var n = (e && e.name) || '';
+      if (n === 'NotAllowedError' || n === 'SecurityError') return Promise.reject({ code: inFrame() && policyAllows('camera') !== true ? 'blocked' : 'denied', name: n });
+      if (n === 'NotFoundError' || n === 'OverconstrainedError' || n === 'NotReadableError') return Promise.reject({ code: 'nocam', name: n });
+      return Promise.reject({ code: 'nocam', name: n || 'Error' });
+    });
+  }
+  function waitVideo(video) {
+    return new Promise(function (res, rej) {
+      var t0 = Date.now();
+      (function chk() { if (video.readyState >= 2 && video.videoWidth > 0) res(); else if (Date.now() - t0 > 8000) rej({ code: 'nocam', name: 'NoFrames' }); else setTimeout(chk, 60); })();
+    });
+  }
+  /** 回傳 { ok:true, descriptor } 或 { ok:false, code }。鏡頭一結束就關。 */
+  function scanFace() {
+    if (state.scanning) return Promise.resolve({ ok: false, code: 'busy' });
+    state.scanning = true;
+    var video = $('scan-video'), stream = null, cancelled = false;
+    state.scanCancel = function () { cancelled = true; };
+    state.lastScanError = null;
+    showScan('start', 0);
+    function stopCamera() {
+      if (stream) { stream.getTracks().forEach(function (tr) { try { tr.stop(); } catch (e) {} }); }
+      stream = null;
+      try { video.pause(); } catch (e) {}
+      try { video.srcObject = null; } catch (e) {}
+      state.cameraOn = false;
+    }
+    function loop(eng) {
+      var t0 = Date.now(), steady = 0, last = null, samples = [];
+      return new Promise(function (resolve) {
+        function tick() {
+          if (cancelled) { resolve({ ok: false, code: 'cancel' }); return; }
+          if (Date.now() - t0 > SCAN.timeoutMs) { resolve({ ok: false, code: 'timeout' }); return; }
+          var want = steady >= SCAN.needSteady;
+          Promise.resolve(eng.detectFrame(video, want)).then(function (d) {
+            if (cancelled) { resolve({ ok: false, code: 'cancel' }); return; }
+            var hint = scanHint(d);
+            if (hint === 'ok' && last && boxMove(last, d) > SCAN.maxMove) hint = 'hold';
+            if (hint === 'ok') {
+              steady++;
+              if (want && d.descriptor && d.descriptor.length === 128) samples.push(d.descriptor);
+            } else { steady = 0; samples = []; }
+            last = d && d.count === 1 ? d : null;
+            if (samples.length >= SCAN.samples) {
+              var avg = averageDescriptor(samples);
+              var spread = Math.max.apply(null, samples.map(function (x) { return distance(x, avg); }));
+              if (spread <= SCAN.maxSpread) { showScan('ok', 1); resolve({ ok: true, descriptor: avg, frames: samples.length }); return; }
+              samples = []; steady = 0; hint = 'hold';
+            }
+            showScan(hint, want ? samples.length / SCAN.samples : steady / (SCAN.needSteady + SCAN.samples));
+            setTimeout(tick, SCAN.intervalMs);
+          }, function () { resolve({ ok: false, code: 'engine' }); });
+        }
+        tick();
+      });
+    }
+    return loadEngine().then(function (eng) {
+      if (cancelled) return { ok: false, code: 'cancel' };
+      return openCamera().then(function (s) {
+        stream = s; state.cameraOn = true;
+        if (cancelled) return { ok: false, code: 'cancel' };
+        video.muted = true; video.setAttribute('playsinline', ''); video.srcObject = s;
+        var pl = null; try { pl = video.play(); } catch (e) {}
+        return Promise.resolve(pl).catch(function () {}).then(function () { return waitVideo(video); }).then(function () { return loop(eng); });
+      });
+    }, function () { return { ok: false, code: 'engine' }; }).then(null, function (e) {
+      state.lastScanError = e && e.name ? e.name : null;
+      return { ok: false, code: (e && e.code) || 'nocam' };
+    }).then(function (r) {
+      stopCamera();
+      $('scan-overlay').hidden = true;
+      state.scanning = false; state.scanCancel = null;
+      return r;
+    });
+  }
+  var SCAN_ERR = { unsupported: 'scanUnsupported', blocked: 'scanBlocked', denied: 'scanDenied', nocam: 'scanNoCam', timeout: 'scanTimeout', engine: 'modelFail' };
+  function scanErrorResult(code) {
+    if (code === 'cancel' || code === 'busy') return { ok: false, msg: '' };
+    return { ok: false, msg: t(SCAN_ERR[code] || 'faceFail'), fallback: code !== 'timeout' && code !== 'engine', code: code };
+  }
+
+  // ---------- 選項 B：iPhone Face ID（WebAuthn 平台驗證器，只拿到通過／不通過） ----------
+  function b64u(buf) {
+    var b = new Uint8Array(buf), str = '';
+    for (var i = 0; i < b.length; i++) str += String.fromCharCode(b[i]);
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unb64u(str) {
+    var s2 = String(str).replace(/-/g, '+').replace(/_/g, '/'); while (s2.length % 4) s2 += '=';
+    var bin = atob(s2), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function randBytes(n) { var a = new Uint8Array(n); (window.crypto || window.msCrypto).getRandomValues(a); return a; }
+  function faceIdErrorKey(e, phase) {
+    var n = (e && e.name) || '';
+    if (n === 'NotAllowedError') return policyAllows(phase === 'create' ? 'publickey-credentials-create' : 'publickey-credentials-get') === false ? 'faceidBlocked' : 'faceidCancel';
+    if (n === 'SecurityError') return 'faceidSecurity';
+    if (n === 'InvalidStateError') return 'faceidExists';
+    if (n === 'NotSupportedError') return 'faceidNotSupported';
+    if (n === 'AbortError') return 'faceidCancel';
+    return 'faceidFail';
+  }
+  /** 一定要在按鈕的 click 裡同步呼叫（前面不能有 await），iPhone Safari 才會跳 Face ID。 */
+  function faceIdCreate(profile) {
+    var env = state.env || {};
+    if (state.faceIdSupport && state.faceIdSupport !== 'ok') return Promise.resolve({ ok: false, msg: t('faceidNotSupported'), code: state.faceIdSupport });
+    if (!env.webauthn) return Promise.resolve({ ok: false, msg: t('faceidNotSupported'), code: 'unsupported' });
+    if (policyAllows('publickey-credentials-create') === false) return Promise.resolve({ ok: false, msg: t('faceidBlocked'), code: 'blocked' });
+    var name = ((profile.firstName || '') + ' ' + (profile.lastName || '')).trim();
+    var p, rpId = rpIdForHere();
+    var rp = { name: '五味鼎 員工打卡' };
+    if (rpId) rp.id = rpId;   // c5：正式網域固定 rpId = checkin.wuweidinchinesecuisine.com（本機測試不指定）
+    try {
+      p = navigator.credentials.create({ publicKey: {
+        challenge: randBytes(32),
+        rp: rp,
+        user: { id: randBytes(16), name: 'wwd-clock-' + profile.employeeId, displayName: '五味鼎 打卡 · ' + name },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred', requireResidentKey: false },
+        timeout: 60000, attestation: 'none'
+      } });
+    } catch (e) { p = Promise.reject(e); }
+    return Promise.resolve(p).then(function (cred) {
+      if (!cred || !cred.rawId) return { ok: false, msg: t('faceidFail'), code: 'empty' };
+      // 建立時就要求 Face ID（userVerification required）；讀得到 authenticatorData 就檢查 UV 位元，當作這一次的驗證。
+      var ad = null; try { if (cred.response && cred.response.getAuthenticatorData) ad = cred.response.getAuthenticatorData(); } catch (e) { ad = null; }
+      var uv = ad ? !!(new Uint8Array(ad)[32] & 0x04) : null;
+      return { ok: true, uv: uv, entry: { v: 1, employeeId: profile.employeeId, credId: b64u(cred.rawId), rpId: rpId || location.hostname, at: nowText() } };
+    }, function (e) { state.lastFaceIdError = (e && e.name) || 'Error'; return { ok: false, msg: t(faceIdErrorKey(e, 'create')), code: (e && e.name) || 'Error' }; });
+  }
+  function faceIdGet(entry) {
+    var env = state.env || {};
+    if (state.faceIdSupport && state.faceIdSupport !== 'ok') return Promise.resolve({ ok: false, msg: t('faceidNotSupported'), code: state.faceIdSupport });
+    if (!env.webauthn) return Promise.resolve({ ok: false, msg: t('faceidNotSupported'), code: 'unsupported' });
+    var rpId = rpIdForHere();
+    if (entry.rpId && entry.rpId !== (rpId || location.hostname)) return Promise.resolve({ ok: false, msg: t('faceidOtherSite'), code: 'othersite' });
+    if (policyAllows('publickey-credentials-get') === false) return Promise.resolve({ ok: false, msg: t('faceidBlocked'), code: 'blocked' });
+    var p;
+    try {
+      var opt = {
+        challenge: randBytes(32),
+        allowCredentials: [{ type: 'public-key', id: unb64u(entry.credId), transports: ['internal'] }],
+        userVerification: 'required', timeout: 60000
+      };
+      if (rpId) opt.rpId = rpId;
+      p = navigator.credentials.get({ publicKey: opt });
+    } catch (e) { p = Promise.reject(e); }
+    return Promise.resolve(p).then(function (a) {
+      if (!a || !a.rawId || b64u(a.rawId) !== entry.credId) return { ok: false, msg: t('faceidWrong'), code: 'wrongcred' };
+      var ad = a.response && a.response.authenticatorData;
+      var flags = ad ? new Uint8Array(ad)[32] : 0;
+      if (!(flags & 0x04)) return { ok: false, msg: t('faceidNoUv'), code: 'nouv' };   // UV 位元：真的有做 Face ID／密碼
+      return { ok: true };
+    }, function (e) { state.lastFaceIdError = (e && e.name) || 'Error'; return { ok: false, msg: t(faceIdErrorKey(e, 'get')), code: (e && e.name) || 'Error' }; });
+  }
+
+  // ---------- GPS（只在手機上） ----------
+  function haversineM(lat1, lng1, lat2, lng2) {
+    var R = 6371000, r = Math.PI / 180, dLat = (lat2 - lat1) * r, dLng = (lng2 - lng1) * r;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+  function getPosition() {
+    if (window.wwdClockGeoOverride_) return window.wwdClockGeoOverride_();
+    return new Promise(function (res, rej) {
+      if (!navigator.geolocation) { rej({ code: 2 }); return; }
+      navigator.geolocation.getCurrentPosition(function (p) { res({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }); },
+        function (e) { rej({ code: e && e.code }); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+    });
+  }
+  /** 位置規則：距離 − min(誤差, GPS_ACCURACY_MAX_M) ≤ GPS_RADIUS_M。 */
+  function locationPasses(meters, accuracy) {
+    return (meters - Math.min(Math.max(Number(accuracy) || 0, 0), GPS_ACCURACY_MAX_M)) <= GPS_RADIUS_M;
+  }
+  /** 用店的固定座標（STORE，來自伺服器）判斷。回傳 { code: ok|far|fail|denied, meters, fix }。座標留在手機，不送出。 */
+  function checkLocation() {
+    return getPosition().then(function (p) {
+      var m = haversineM(p.lat, p.lng, STORE.lat, STORE.lng);
+      return { code: locationPasses(m, p.accuracy) ? 'ok' : 'far', meters: Math.round(m), fix: p };
+    }, function (e) { return { code: e && e.code === 1 ? 'denied' : 'fail', meters: null, fix: null }; });
+  }
+
+  // ---------- GPS 關卡：每次打開先過，沒過就不能設定、不能打卡 ----------
+  function showGate(kind, loc) {
+    state.gate = kind;
+    var card = $('gate-card');
+    card.className = 'card gate' + ((kind === 'denied' || kind === 'far' || kind === 'fail') ? ' bad' : '');
+    var btn = $('gate-btn');
+    $('gate-help').hidden = kind !== 'denied';
+    btn.hidden = kind === 'checking';
+    btn.textContent = kind === 'prompt' ? t('gateAllow') : t('gateRetry');
+    if (kind === 'checking') { $('gate-title').textContent = t('gateCheckingTitle'); $('gate-text').textContent = t('gateChecking'); }
+    else if (kind === 'prompt') { $('gate-title').textContent = t('gatePromptTitle'); $('gate-text').textContent = t('gatePrompt', { store: '五味鼎 ' + STORE.label }); }
+    else if (kind === 'denied') { $('gate-title').textContent = t('gateDeniedTitle'); $('gate-text').textContent = t('gateDeniedText'); }
+    else if (kind === 'far') { $('gate-title').textContent = t('locWrong'); $('gate-text').textContent = t('locFar', { m: loc ? loc.meters : '?', store: '五味鼎 ' + STORE.label, r: GPS_RADIUS_M }); }
+    else if (kind === 'fail') { $('gate-title').textContent = t('gateNoFixTitle'); $('gate-text').textContent = t('locNoFix'); }
+    paint();
+  }
+  function runGateCheck() {
+    showGate('checking');
+    return checkLocation().then(function (loc) {
+      state.lastLoc = loc;
+      if (isTestMode()) { state.gate = 'ok'; paint(); return loc; } // 檢查中途開了測試模式
+      if (loc.code === 'ok') { state.gate = 'ok'; paint(); if (!window.wwdClockEngineOverride_) loadEngine().catch(function () {}); return loc; }
+      showGate(loc.code, loc);
+      return loc;
+    });
+  }
+  /** 打開時：已允許 → 直接檢查；已拒絕 → 顯示開啟步驟；還沒問 → 先說明為什麼，再按鈕請求。 */
+  function startGate() {
+    if (!STORE) { paint(); return Promise.resolve(); }
+    if (isTestMode()) { state.gate = 'ok'; paint(); if (!window.wwdClockEngineOverride_) loadEngine().catch(function () {}); return Promise.resolve(); }
+    var q = null;
+    try { if (navigator.permissions && navigator.permissions.query) q = navigator.permissions.query({ name: 'geolocation' }); } catch (e) { q = null; }
+    if (window.wwdClockPermissionOverride_) q = Promise.resolve({ state: window.wwdClockPermissionOverride_ });
+    if (!q) { showGate('prompt'); return Promise.resolve(); }
+    return q.then(function (st) {
+      if (st && st.state === 'granted') return runGateCheck();
+      if (st && st.state === 'denied') { showGate('denied'); return null; }
+      showGate('prompt'); return null;
+    }, function () { showGate('prompt'); return null; });
+  }
+
+  // ---------- 畫面 ----------
+  function paint() {
+    var badStore = !STORE;
+    var p = getProfile();
+    $('store-label').textContent = STORE ? '五味鼎 ' + STORE.label : '';
+    var gateOk = state.gate === 'ok';
+    $('testbar').hidden = !isTestMode();
+    $('bad-store-card').hidden = !badStore;
+    $('gate-card').hidden = badStore || gateOk || !state.gate;
+    $('setup-card').hidden = badStore || !gateOk || !!p;
+    $('punch-card').hidden = badStore || !gateOk || !p;
+    if (!state.punchType) state.punchType = defaultType();
+    [['type-in', '上班'], ['type-out', '下班']].forEach(function (x) {
+      var on = state.punchType === x[1]; $(x[0]).classList.toggle('on', on); $(x[0]).setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    if (p) {
+      $('who').textContent = t('hello', { name: (p.firstName + ' ' + p.lastName).trim(), id: p.employeeId });
+      $('who-sub').textContent = t('faceOnPhone', { t: p.enrolledAt || '' });
+      var typeText = state.punchType === '下班' ? t('clockOut') : t('clockIn');
+      $('scan-sub').textContent = t(scanEntry(p) ? 'subScan' : 'subScanFirst', { type: typeText });
+      $('faceid-sub').textContent = t(faceIdEntry(p) ? 'subFaceId' : 'subFaceIdFirst', { type: typeText });
+    }
+    $('scan-btn').classList.toggle('dim', !!state.blocked.scan);
+    $('faceid-btn').classList.toggle('dim', !!state.blocked.faceid);
+    var why = [state.blocked.scan, state.blocked.faceid].filter(Boolean).map(function (k) { return t(k); });
+    $('fallback').hidden = !why.length;
+    $('fallback-why').textContent = why.join(' ');
+    $('selfie-btn').textContent = t('selfieBtn') + ' · ' + (state.punchType === '下班' ? t('clockOut') : t('clockIn'));
+    var env = state.env;
+    $('diag').hidden = !isTestMode() || !env;
+    if (env && isTestMode()) {
+      var yn = function (v) { return v === true ? 'yes' : (v === false ? 'NO' : '?'); };
+      $('diag').textContent = 'diag: frame=' + yn(env.inFrame) + ' · secure=' + yn(env.secure) + ' · policy camera=' + yn(env.camera) +
+        ' pk-create=' + yn(env.pkCreate) + ' pk-get=' + yn(env.pkGet) + ' · getUserMedia=' + yn(env.gum) + ' · WebAuthn=' + yn(env.webauthn) +
+        ' · platformUV=' + (state.faceIdSupport || '?') + ' · host=' + location.hostname + ' · rpId=' + (rpIdForHere() || '(host)') + ' · config=' + (state.config || '?') +
+        (state.lastScanError ? ' · lastCamErr=' + state.lastScanError : '') + (state.lastFaceIdError ? ' · lastFaceIdErr=' + state.lastFaceIdError : '');
+    }
+    ['setup-save', 'scan-btn', 'faceid-btn', 'selfie-btn', 'type-in', 'type-out'].forEach(function (id) { $(id).setAttribute('aria-disabled', state.busy ? 'true' : 'false'); });
+  }
+  function nowText() {
+    var d = new Date(); function z(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
+  }
+  function enrollPrecheck() {
+    if (!getProfile() && !lsGet('wwd-clock-consent-v1') && !$('consent-check').checked) return t('needConsent');
+    if (!$('first-name').value.trim() || !$('last-name').value.trim() || !$('emp-id').value.trim()) return t('needFields');
+    return '';
+  }
+  function setBusy(b) { state.busy = b; paint(); }
+
+  function profileFromForm() {
+    return { v: 1, firstName: $('first-name').value.trim().slice(0, 30), lastName: $('last-name').value.trim().slice(0, 30),
+      employeeId: $('emp-id').value.trim().slice(0, 40), lang: $('lang-select').value || state.lang };
+  }
+  /** 第一次設定的共同收尾：設定資料存手機 → 驗證方式的資料存手機 → 姓名工號送伺服器（不含任何臉部、Face ID、GPS 資料）。 */
+  function finishSetup(profile, saveMethod) {
+    var action = lsGet('wwd-clock-reenroll') ? 'reenroll' : 'new';
+    profile.enrolledAt = nowText(); profile.threshold = MATCH_THRESHOLD; profile.store = STORE.id;
+    // 設定當下的位置只留在手機（備查），不送出；判斷一律用店的固定座標。
+    var fx = state.lastLoc && state.lastLoc.fix;
+    if (fx) profile.setupGps = { lat: Math.round(fx.lat * 1e6) / 1e6, lng: Math.round(fx.lng * 1e6) / 1e6, accuracy: Math.round(fx.accuracy || 0), at: nowText() };
+    try { lsSet(PROFILE_KEY, JSON.stringify(profile)); lsSet('wwd-clock-consent-v1', nowText()); if (saveMethod) saveMethod(); }
+    catch (e) { try { localStorage.removeItem(PROFILE_KEY); } catch (e2) {} setStatus(t('storageFail')); return Promise.resolve(); }
+    try { localStorage.removeItem('wwd-clock-reenroll'); } catch (e) {}
+    if (profile.lang !== state.lang) applyLang(profile.lang);
+    return server('registerEmployee', buildEmployeePayload(profile, STORE.id, action, testToken())).then(function (res) {
+      if (res && res.code === 'TEST_TOKEN_INVALID') { testExpired(); return; }
+      if (res && res.ok) setStatus(t('setupDone'), 'ok'); else setStatus(t('setupServerFail', { e: (res && res.error) || '' }));
+    }, function (err) { setStatus(t('setupServerFail', { e: (err && err.message) || '' })); });
+  }
+  /** 第一次：只存員工資料（不開鏡頭），然後直接進兩個按鈕的畫面。 */
+  function onSaveInfo() {
+    if (state.busy || !STORE || state.gate !== 'ok') return Promise.resolve();
+    var pre = enrollPrecheck(); if (pre) { setStatus(pre); return Promise.resolve(); }
+    var profile = profileFromForm();
+    setBusy(true); setStatus(t('sending'), 'info');
+    state.punchType = '';
+    return finishSetup(profile, null).catch(function () { setStatus(t('sendFail')); }).then(function () { setBusy(false); });
+  }
+  function failResult(type) { return t(type === '下班' ? 'checkOutFail' : 'checkInFail'); }
+  var SCAN_BLOCK_KEYS = { blocked: 'fbScanBlocked', unsupported: 'fbScanUnsupported', denied: 'fbScanDenied', nocam: 'fbScanNoCam' };
+
+  /** 按鈕 1：自研掃描。沒有模板 → 這次掃描存成模板並打卡；有模板 → 比對。 */
+  function onScanPunch(type) {
+    return punchWith(type, 'scan', function (p) {
+      var entry = scanEntry(p);
+      return scanFace().then(function (r) {
+        if (!r.ok) {
+          if (SCAN_BLOCK_KEYS[r.code]) markBlocked('scan', SCAN_BLOCK_KEYS[r.code]);
+          var e = scanErrorResult(r.code);
+          if (r.code === 'cancel' || r.code === 'busy') return e;
+          return { ok: false, big: failResult(type), msg: e.msg };
+        }
+        if (!entry) {
+          lsSet(SCAN_KEY, JSON.stringify({ v: 1, employeeId: p.employeeId, descriptor: r.descriptor, at: nowText(), threshold: MATCH_THRESHOLD }));
+          return { ok: true, note: t('firstScanSaved') };
+        }
+        var d = distance(r.descriptor, entry.descriptor);
+        window.wwdClockLastDistance_ = d;
+        if (!(d <= MATCH_THRESHOLD)) return { ok: false, big: failResult(type), msg: t('notMe') + '（' + d.toFixed(2) + ' > ' + MATCH_THRESHOLD.toFixed(2) + '）' };
+        return { ok: true };
+      });
+    });
+  }
+  /** 按鈕 2：iPhone Face ID。只證明手機主人（假設主人就是這位員工）。沒有金鑰 → 先建立（建立時就要 Face ID），再驗證。 */
+  function onFaceIdPunch(type) {
+    return punchWith(type, 'faceid', function (p) {
+      var entry = faceIdEntry(p);
+      function fail(v) {
+        if (v.code === 'blocked') markBlocked('faceid', 'fbFaceIdBlocked');
+        else if (v.code === 'unsupported' || v.code === 'noplatform' || v.code === 'NotSupportedError') markBlocked('faceid', 'fbFaceIdUnsupported');
+        else if (v.code === 'NotAllowedError' && inFrame() && policyAllows('publickey-credentials-get') === null && !state.blocked.faceid) markBlocked('faceid', 'fbFaceIdMaybe');
+        return { ok: false, big: failResult(type), msg: v.msg };
+      }
+      if (entry) return faceIdGet(entry).then(function (v) { return v.ok ? { ok: true } : fail(v); });
+      return faceIdCreate(p).then(function (c) {
+        if (!c.ok) return fail(c);
+        lsSet(FACEID_KEY, JSON.stringify(c.entry));
+        if (c.uv === true) return { ok: true, note: t('firstFaceIdSaved') };
+        if (c.uv === false) return fail({ msg: t('faceidNoUv'), code: 'nouv' });
+        return faceIdGet(c.entry).then(function (v) { return v.ok ? { ok: true, note: t('firstFaceIdSaved') } : fail(v); });   // 讀不到旗標才再驗一次
+      });
+    });
+  }
+  /** 備援：自拍（只在鏡頭或 Face ID 被擋時出現）。沒有自拍模板 → 第一張存成模板並打卡；有 → 比對。 */
+  function onSelfiePunch(file, type) {
+    return punchWith(type, 'selfie', function (p) {
+      setStatus(t('analyzing'), 'info');
+      return describe(file).then(function (r) {
+        var msg = faceCountMsg(r && r.count); if (msg) return { ok: false, msg: msg };
+        if (!selfieReady(p)) { p.descriptor = r.descriptor; lsSet(PROFILE_KEY, JSON.stringify(p)); return { ok: true, note: t('firstSelfieSaved') }; }
+        var d = distance(r.descriptor, p.descriptor);
+        window.wwdClockLastDistance_ = d;
+        if (!(d <= MATCH_THRESHOLD)) return { ok: false, big: failResult(type), msg: t('mismatch', { d: d.toFixed(2), t: MATCH_THRESHOLD.toFixed(2) }) };
+        return { ok: true };
+      });
+    });
+  }
+  /** 共同打卡流程：本人驗證（手機上）→ 位置（手機上）→ 只送工號、類型、驗證方式代碼。 */
+  function punchWith(type, method, verify) {
+    var p = getProfile();
+    if (state.busy || !STORE || !p || state.gate !== 'ok') return Promise.resolve(null);
+    var res = $('result'); res.hidden = true;
+    var label = type === '下班' ? t('clockOut') : t('clockIn');
+    var v0;
+    try { v0 = verify(p); } catch (e) { v0 = Promise.reject(e); }   // 同步呼叫，保住使用者手勢
+    setBusy(true);
+    return Promise.resolve(v0).then(function (v) {
+      if (!v || !v.ok) {
+        if (v && v.big) { res.className = 'result fail'; res.hidden = false; res.textContent = v.big; }
+        setStatus((v && v.msg) || '');
+        return null;
+      }
+      var note = v.note || '';
+      setStatus(t('locating'), 'info');
+      var tt = testToken();
+      return (tt ? Promise.resolve({ code: 'skipped', meters: null, fix: null }) : checkLocation()).then(function (loc) {
+        state.lastLoc = loc;
+        if (loc.code !== 'ok' && loc.code !== 'skipped') {
+          // 位置不對：只在手機上顯示，不送出、不記錄。
+          res.className = 'result fail'; res.hidden = false;
+          res.textContent = (type === '下班' ? t('outFail') : t('inFail'));
+          setStatus(loc.code === 'far' ? t('locFar', { m: loc.meters, store: '五味鼎 ' + STORE.label, r: GPS_RADIUS_M }) : (loc.code === 'denied' ? t('locDenied') : t('locNoFix')));
+          return null;
+        }
+        setStatus(t('sending'), 'info');
+        var payload = buildPunchPayload(p, STORE.id, type, loc.code, tt, method);
+        return server('submitClockPunch', payload).then(function (out) {
+          if (out && out.code === 'TEST_TOKEN_INVALID') { testExpired(); return null; }
+          if (!out || !out.ok) { setStatus(out && out.code === 'DUPLICATE' ? t('duplicate') : ((out && out.error) || t('sendFail'))); return null; }
+          res.className = 'result ok'; res.hidden = false;
+          res.textContent = (type === '下班' ? t('outOk') : t('inOk')) + '\n' + t('okLine', { label: label, date: out.date, time: out.time, store: out.store });
+          try { lsSet(LAST_KEY, JSON.stringify({ type: type, day: todayKey() })); } catch (e) {}
+          setStatus(note, note ? 'ok' : '');
+          return out;
+        }, function () { setStatus(t('sendFail')); return null; });
+      });
+    }).catch(function () { setStatus(t('faceFail')); return null; }).then(function (o) { setBusy(false); return o; });
+  }
+
+  function onReenroll() {
+    if (state.busy) return false;
+    if (!window.confirm(t('reenrollConfirm'))) return false;
+    var p = getProfile();
+    try { localStorage.removeItem(PROFILE_KEY); localStorage.removeItem(SCAN_KEY); localStorage.removeItem(FACEID_KEY); lsSet('wwd-clock-reenroll', '1'); } catch (e) {}
+    if (p) { $('first-name').value = p.firstName || ''; $('last-name').value = p.lastName || ''; $('emp-id').value = p.employeeId || ''; }
+    $('result').hidden = true; state.punchType = '';
+    paint(); setStatus(t('reenrollStart'), 'info');
+    return true;
+  }
+
+  // ---------- 測試模式（頁尾版本字 3 秒內連點 5 下） ----------
+  var footTaps = [];
+  function onFooterTap() {
+    var now = Date.now();
+    footTaps = footTaps.filter(function (x) { return now - x < 3000; });
+    footTaps.push(now);
+    if (footTaps.length >= 5) { footTaps = []; openTestModal(); }
+  }
+  function openTestModal() {
+    $('test-pass').value = ''; $('test-msg').textContent = '';
+    $('test-modal').hidden = false;
+    setTimeout(function () { try { $('test-pass').focus(); } catch (e) {} }, 50);
+  }
+  function closeTestModal() { $('test-pass').value = ''; $('test-modal').hidden = true; }
+  function submitTestPass() {
+    var pass = $('test-pass').value;
+    if (!pass) return Promise.resolve();
+    $('test-msg').textContent = t('testChecking');
+    $('test-ok').disabled = true;
+    return server('unlockTestMode', { store: STORE ? STORE.id : '', passcode: pass }).then(function (res) {
+      $('test-ok').disabled = false;
+      $('test-pass').value = '';
+      if (!res || !res.ok || !res.token) { $('test-msg').textContent = (res && res.error) || ''; return; }
+      try { lsSet(TEST_KEY, JSON.stringify({ token: res.token, exp: res.exp })); } catch (e) { $('test-msg').textContent = t('storageFail'); return; }
+      closeTestModal();
+      setStatus('');
+      startGate();
+    }, function (err) { $('test-ok').disabled = false; $('test-msg').textContent = (err && err.message) || ''; });
+  }
+  function exitTestMode() {
+    clearTestToken();
+    state.gate = '';
+    $('result').hidden = true;
+    setStatus('');
+    paint();
+    return startGate();
+  }
+  function testExpired() {
+    clearTestToken();
+    state.gate = '';
+    setStatus(t('testExpired'));
+    paint();
+    startGate();
+  }
+
+  function bind() {
+    $('appVersion').addEventListener('click', onFooterTap);
+    $('test-cancel').addEventListener('click', closeTestModal);
+    $('test-ok').addEventListener('click', submitTestPass);
+    $('test-pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submitTestPass(); } });
+    $('test-exit').addEventListener('click', exitTestMode);
+    Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+      b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+    });
+    $('lang-select').addEventListener('change', function () { applyLang($('lang-select').value); });
+    function onFile(id, fn) {
+      var inp = $(id);
+      inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; inp.value = ''; if (f) fn(f); });
+    }
+    $('setup-save').addEventListener('click', function () { onSaveInfo(); });
+    $('type-in').addEventListener('click', function () { setType('上班'); });
+    $('type-out').addEventListener('click', function () { setType('下班'); });
+    // Face ID 的 create/get 在這個 click 裡同步發出（Safari 需要使用者手勢）。
+    $('scan-btn').addEventListener('click', function () { onScanPunch(state.punchType || '上班'); });
+    $('faceid-btn').addEventListener('click', function () { onFaceIdPunch(state.punchType || '上班'); });
+    onFile('selfie-capture', function (f) { onSelfiePunch(f, state.punchType || '上班'); });
+    $('scan-cancel').addEventListener('click', function () { if (state.scanCancel) state.scanCancel(); });
+    $('reenroll-btn').addEventListener('click', onReenroll);
+    $('gate-btn').addEventListener('click', function () { runGateCheck(); });
+  }
+
+  // 測試用。
+  window.wwdClock_ = { describeFile: describe, buildPunchPayload: buildPunchPayload, buildEmployeePayload: buildEmployeePayload, distance: distance,
+    haversineM: haversineM, locationPasses: locationPasses, startGate: startGate, runGateCheck: runGateCheck, state: state, isTestMode: isTestMode, exitTestMode: exitTestMode, onReenroll: onReenroll, getProfile: getProfile, applyLang: applyLang,
+    MATCH_THRESHOLD: MATCH_THRESHOLD, GPS_RADIUS_M: GPS_RADIUS_M, I18N: I18N,
+    scanHint: scanHint, averageDescriptor: averageDescriptor, scanFace: scanFace, onSaveInfo: onSaveInfo, onScanPunch: onScanPunch, onFaceIdPunch: onFaceIdPunch,
+    onSelfiePunch: onSelfiePunch, setType: setType, defaultType: defaultType, faceIdCreate: faceIdCreate, faceIdGet: faceIdGet,
+    detectEnv: detectEnv, probeFaceId: probeFaceId, SCAN: SCAN,
+    server: server, loadConfig: loadConfig, rpIdForHere: rpIdForHere, RP_ID: RP_ID, API_URL: API_URL, APP_LABEL: APP_LABEL, getStore: function () { return STORE; }, getGpsRule: function () { return { radiusM: GPS_RADIUS_M, accuracyMaxM: GPS_ACCURACY_MAX_M }; } };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    bind();
+    state.env = detectEnv();
+    initialBlocks();
+    probeFaceId();
+    var saved = lsGet(LANG_KEY) || ((getProfile() || {}).lang) || 'zh';
+    applyLang(saved);
+    if (STORE) showGate('checking');
+    state.gateDone = loadConfig().then(function () { if (STORE) showGate('checking'); return startGate(); });
+  });
+})();
+</script>
+</body>
+</html>
